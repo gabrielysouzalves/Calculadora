@@ -11,17 +11,31 @@ import {
 } from '../utils/calcular';
 import { carregar, salvar } from '../storage/historico';
 
-export default function HomeScreen({ navigation }) {
+export default function HomeScreen({ navigation, route }) {
   const [expressao, setExpressao] = useState('');
   const [resultado, setResultado] = useState('');
   const [calculado, setCalculado] = useState(false); // acabou de apertar =
   const [memoria, setMemoria] = useState(0);
   const [historico, setHistorico] = useState([]);
 
-  // carrega o histórico salvo, uma vez, quando a tela abre
+  // Evolução 1: recarrega o histórico toda vez que a tela ganha foco,
+  // para não ficar com a lista antiga (já limpa/alterada na outra tela)
   useEffect(() => {
-    carregar().then(setHistorico);
-  }, []);
+    const cancelar = navigation.addListener('focus', () => {
+      carregar().then(setHistorico);
+    });
+    return cancelar;
+  }, [navigation]);
+
+  // Evolução 3: quando uma conta é tocada no histórico, mostra o resultado
+  // no display. Observa "toque" (muda a cada toque), não só o valor.
+  useEffect(() => {
+    if (route.params?.valor !== undefined) {
+      setExpressao(String(route.params.valor));
+      setResultado('');
+      setCalculado(false);
+    }
+  }, [route.params?.toque]);
 
   function limpar() {
     setExpressao('');
