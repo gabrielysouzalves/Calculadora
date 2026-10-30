@@ -1,7 +1,12 @@
-# ExpoCalc
+# Calculadora
 
 Calculadora em React Native (Expo SDK 54) usada na aula de Desenvolvimento de dispositivos móveis (Fatec ADS).
 Esta versão é o resultado final da aula: componentes, histórico com FlatList, persistência com AsyncStorage e navegação entre duas telas.
+
+## Desenvolvedoras
+
+- Gabriely Souza — [@gabrielysouzalves](https://github.com/gabrielysouzalves)
+- Gabriel Gonzaga Oliveira — [Gabriel250g](https://github.com/Gabriel250g)
 
 ## Evoluções implementadas
 
