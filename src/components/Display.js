@@ -1,5 +1,5 @@
 
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Image } from 'react-native';
 
 export default function Display({ expressao, resultado, memoria }) {
   return (
@@ -19,9 +19,21 @@ export default function Display({ expressao, resultado, memoria }) {
         {expressao || '0'}
       </Text>
 
-      <Text style={styles.resultado}>
-        {resultado ? `= ${resultado}` : ' '}
-      </Text>
+      <View style={styles.linhaResultado}>
+        {resultado !== '' && resultado != null && (
+          <>
+            <Text style={styles.resultado}>
+              = {resultado}
+            </Text>
+
+            <Image
+              source={require('../../assets/hello-kitty.png')}
+              style={styles.helloKitty}
+              resizeMode="contain"
+            />
+          </>
+        )}
+      </View>
     </View>
   );
 }
@@ -71,10 +83,23 @@ const styles = StyleSheet.create({
     color: '#51445A',
   },
 
+  linhaResultado: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    minHeight: 65,
+  },
+
   resultado: {
     fontSize: 24,
     fontWeight: 'bold',
     color: '#B17DAF',
-    minHeight: 30,
+  },
+
+  helloKitty: {
+    width: 65,
+    height: 65,
+    marginLeft: 10,
   },
 });
