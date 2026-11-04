@@ -1,7 +1,26 @@
 
-import { TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet, Animated, Easing } from 'react-native';
+import { useRef } from 'react';
 
 export default function Botao({ label, onPress, tipo = 'numero' }) {
+  const progresso = useRef(new Animated.Value(0)).current;
+
+  const animarGlitter = () => {
+    progresso.setValue(0);
+
+    Animated.timing(progresso, {
+      toValue: 1,
+      duration: 450,
+      easing: Easing.out(Easing.ease),
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const aoClicar = () => {
+    animarGlitter();
+    onPress(label);
+  };
+
   const ehControle = tipo === 'controle';
   const ehOperador = ['/', 'X', '-', '+'].includes(label);
   const ehIgual = label === '=';
@@ -24,6 +43,16 @@ export default function Botao({ label, onPress, tipo = 'numero' }) {
     estiloTexto = styles.textoEspecial;
   }
 
+  const opacidade = progresso.interpolate({
+    inputRange: [0, 0.2, 1],
+    outputRange: [0, 1, 0],
+  });
+
+  const escala = progresso.interpolate({
+    inputRange: [0, 0.3, 1],
+    outputRange: [0.4, 1.2, 1.8],
+  });
+
   return (
     <TouchableOpacity
       style={[
@@ -31,12 +60,23 @@ export default function Botao({ label, onPress, tipo = 'numero' }) {
         ehControle ? styles.tamanhoControle : styles.tamanhoNumero,
         estiloBotao,
       ]}
-      onPress={() => onPress(label)}
+      onPress={aoClicar}
       activeOpacity={0.7}
     >
-      <Text style={estiloTexto}>
-        {label}
-      </Text>
+      <Animated.Text
+        pointerEvents="none"
+        style={[
+          styles.glitter,
+          {
+            opacity: opacidade,
+            transform: [{ scale: escala }],
+          },
+        ]}
+      >
+        ✨
+      </Animated.Text>
+
+      <Text style={estiloTexto}>{label}</Text>
     </TouchableOpacity>
   );
 }
@@ -51,32 +91,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 16,
     elevation: 2,
+    overflow: 'visible',
   },
+  tamanhoControle: { width: '17%' },
+  tamanhoNumero: { width: '22%' },
 
-  tamanhoControle: {
-    width: '17%',
-  },
-
-  tamanhoNumero: {
-    width: '22%',
-  },
-
-  botaoNumero: {
-    backgroundColor: '#FFFFFF',
-  },
-
-  botaoControle: {
-    backgroundColor: '#F0E8F5',
-  },
-
-  botaoOperador: {
-    backgroundColor: '#D8C5E8',
-  },
-
-  botaoLimpeza: {
-    backgroundColor: '#F2DCE8',
-  },
-
+  botaoNumero: { backgroundColor: '#FFFFFF' },
+  botaoControle: { backgroundColor: '#F0E8F5' },
+  botaoOperador: { backgroundColor: '#D8C5E8' },
+  botaoLimpeza: { backgroundColor: '#F2DCE8' },
   botaoIgual: {
     backgroundColor: '#D9B9E8',
     borderColor: '#C6A4D9',
@@ -87,16 +110,21 @@ const styles = StyleSheet.create({
     fontSize: 25,
     fontWeight: '600',
   },
-
   textoControle: {
     color: '#776580',
     fontSize: 15,
     fontWeight: '600',
   },
-
   textoEspecial: {
     color: '#65536F',
     fontSize: 23,
     fontWeight: 'bold',
+  },
+  glitter: {
+    position: 'absolute',
+    top: -19,
+    right: -8,
+    fontSize: 22,
+    zIndex: 10,
   },
 });
