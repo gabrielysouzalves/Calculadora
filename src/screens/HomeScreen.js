@@ -1,5 +1,6 @@
+
 import { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Button } from 'react-native';
+import { StyleSheet, Text, View, Pressable } from 'react-native';
 import Display from '../components/Display';
 import Teclado from '../components/Teclado';
 import {
@@ -14,12 +15,10 @@ import { carregar, salvar } from '../storage/historico';
 export default function HomeScreen({ navigation, route }) {
   const [expressao, setExpressao] = useState('');
   const [resultado, setResultado] = useState('');
-  const [calculado, setCalculado] = useState(false); // acabou de apertar =
+  const [calculado, setCalculado] = useState(false);
   const [memoria, setMemoria] = useState(0);
   const [historico, setHistorico] = useState([]);
 
-  // Evolução 1: recarrega o histórico toda vez que a tela ganha foco,
-  // para não ficar com a lista antiga (já limpa/alterada na outra tela)
   useEffect(() => {
     const cancelar = navigation.addListener('focus', () => {
       carregar().then(setHistorico);
@@ -27,8 +26,6 @@ export default function HomeScreen({ navigation, route }) {
     return cancelar;
   }, [navigation]);
 
-  // Evolução 3: quando uma conta é tocada no histórico, mostra o resultado
-  // no display. Observa "toque" (muda a cada toque), não só o valor.
   useEffect(() => {
     if (route.params?.valor !== undefined) {
       setExpressao(String(route.params.valor));
@@ -124,11 +121,10 @@ export default function HomeScreen({ navigation, route }) {
     }
 
     if (ehOperador(tecla)) {
-      // depois do =, continua a conta a partir do resultado
       let base = calculado ? (resultado === 'Erro' ? '' : resultado) : expressao;
       if (base === '' && tecla !== '-') return;
       if (base.length > 1 && ehOperador(base.slice(-1))) {
-        base = base.slice(0, -1); // troca o operador anterior
+        base = base.slice(0, -1);
       }
       setExpressao(base + tecla);
       setResultado('');
@@ -136,7 +132,6 @@ export default function HomeScreen({ navigation, route }) {
       return;
     }
 
-    // dígito ou ponto
     const base = calculado ? '' : expressao;
     const atual = ultimoNumero(base).texto;
     if (tecla === '.' && atual.includes('.')) return;
@@ -148,17 +143,20 @@ export default function HomeScreen({ navigation, route }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.titulo}>Calculadora do Fukuta</Text>
+      <Display
+        expressao={expressao}
+        resultado={resultado}
+        memoria={memoria}
+      />
 
-      <Display expressao={expressao} resultado={resultado} memoria={memoria} />
       <Teclado onPress={aoTocar} />
 
-      <View style={styles.botaoHistorico}>
-        <Button
-          title="Ver histórico"
-          onPress={() => navigation.navigate('Historico', { historico })}
-        />
-      </View>
+      <Pressable
+        style={styles.botaoHistorico}
+        onPress={() => navigation.navigate('Historico', { historico })}
+      >
+        <Text style={styles.textoHistorico}>Ver histórico</Text>
+      </Pressable>
     </View>
   );
 }
@@ -166,22 +164,25 @@ export default function HomeScreen({ navigation, route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#4a0303',
+    backgroundColor: '#F8F3F8',
     alignItems: 'center',
     justifyContent: 'flex-start',
+    paddingTop: 12,
   },
-  titulo: {
-    textAlign: 'center',
-    backgroundColor: 'gray',
-    color: 'white',
-    fontSize: 24,
-    fontWeight: 'bold',
-    height: 35,
-    width: '100%',
-  },
+
   botaoHistorico: {
     marginTop: 20,
-    backgroundColor: '#f0f0f0',
-    borderRadius: 10,
+    backgroundColor: '#E9DDF2',
+    paddingVertical: 12,
+    paddingHorizontal: 25,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: '#D8C5E8',
+  },
+
+  textoHistorico: {
+    color: '#65536F',
+    fontSize: 18,
+    fontWeight: '600',
   },
 });
